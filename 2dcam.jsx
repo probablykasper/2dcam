@@ -1,9 +1,9 @@
-﻿var myPanel = (this instanceof Panel) ? this : new Window("palette", "Cambox", undefined, { resizeable: true });
+﻿var myPanel = (this instanceof Panel) ? this : new Window("palette", "2dCam", undefined, { resizeable: true });
 
 res = "group{orientation:'row',\
   groupTwo: Panel{orientation:'row',\
     deleteCompButton: Button{text:'+'},\
-    deleteText: StaticText{text:'Add Cambox'},\
+    deleteText: StaticText{text:'Add 2dCam'},\
   },\
 }";
 
@@ -12,7 +12,7 @@ myPanel.grp = myPanel.add(res);
 // Defaults
 myPanel.grp.groupTwo.deleteCompButton.size = [25, 25];
 
-// Add Cambox
+// Add 2dCam
 myPanel.grp.groupTwo.deleteCompButton.onClick = function () {
   if (app.project.activeItem == undefined || app.project.activeItem == null) {
     alert("Please select a comp to delete");
@@ -28,7 +28,7 @@ myPanel.grp.groupTwo.deleteCompButton.onClick = function () {
 
     // app.project.activeItem.remove();
     var shapeLayer = app.project.activeItem.layers.addShape();
-    shapeLayer.name = 'Cambox';
+    shapeLayer.name = '2dCam';
     shapeLayer.guideLayer = true;
 
     var contents = shapeLayer.property('ADBE Root Vectors Group');
