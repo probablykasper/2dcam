@@ -15,7 +15,7 @@ res = 'group{ \
   newOutputButton: IconButton{ \
     properties: {style:"toolbutton"}, \
     preferredSize: [30, 30], \
-    helpTip: "New 2dCam output comp\\nAlt+click: Apply 2dCam output on the selected layer" \
+    helpTip: "New 2dCam output comp\\nAlt+click: Apply 2dCam output to the selected layer" \
   }, \
 }';
 win.grp = win.add(res);
@@ -80,47 +80,170 @@ function newCamDialog(currentComp, alt, ok) {
   dialog.show();
 }
 
+function applyOutputToLayer(name, outputLayer) {
+  var outputComp = app.project.items.addComp(
+    'applyOutputToLayer',
+    192,
+    108,
+    sourceComp.pixelAspect,
+    sourceComp.duration,
+    sourceComp.frameRate
+  );
+  outputComp.parentFolder = sourceComp.parentFolder;
+  // set outputLayer expression for
+    // - anchor point
+    // - pos
+    // - scale
+    // - rotation
+}
+
+function newOutputComp(name, sourceComp) {
+  var outputComp = app.project.items.addComp(
+    sourceComp.name+' '+name,
+    192,
+    108,
+    sourceComp.pixelAspect,
+    sourceComp.duration,
+    sourceComp.frameRate
+  );
+  outputComp.parentFolder = sourceComp.parentFolder;
+  outputComp.openInViewer();
+  // take outputComp width and height from
+    // - active 2dCam at current time
+    // - otherwise, first 2dCam at it's inPoint
+  // add sourceComp as layer in output comp
+  // apply output to layer
+}
+
 // New 2dCam
 win.grp.newCamButton.onClick = function() {
-  if (app.project.activeItem == undefined || app.project.activeItem == null) {
-    alert('Please select a composition');
-  } else {
-    currentComp = app.project.activeItem;
+  var currentComp = app.project.activeItem;
+  if (!currentComp) return alert('Please select a comp');
 
-    // ask for name, width, height then apply preset.
-    newCamDialog(currentComp, ScriptUI.environment.keyboardState.altKey, function(options) {
-      var camWidth = options.width;
-      var camHeight = options.height;
-      var strokeWidth = Math.ceil(Math.min(camWidth/40, camHeight/40));
+  // ask for name, width, height then apply preset.
+  var createOutputComp = ScriptUI.environment.keyboardState.altKey;
+  newCamDialog(currentComp, createOutputComp, function(options) {
+    var camWidth = options.width;
+    var camHeight = options.height;
+    var strokeWidth = Math.ceil(Math.min(camWidth/40, camHeight/40));
 
-      app.beginUndoGroup('New 2dCam');
+    app.beginUndoGroup('New 2dCam and Output Comp');
 
-      var shapeLayer = app.project.activeItem.layers.addShape();
-      shapeLayer.name = '2dCam';
-      shapeLayer.guideLayer = true;
-      shapeLayer.blendingMode = BlendingMode.DIFFERENCE;
+    var shapeLayer = app.project.activeItem.layers.addShape();
+    shapeLayer.name = '2dCam';
+    shapeLayer.guideLayer = true;
+    shapeLayer.blendingMode = BlendingMode.DIFFERENCE;
 
-      var shapeContents = shapeLayer.property('ADBE Root Vectors Group');
+    var shapeContents = shapeLayer.property('ADBE Root Vectors Group');
 
-      var rectangle = shapeContents.addProperty('ADBE Vector Shape - Rect');
-      rectangle.name = 'Rectangle';
-      rectangle.property('ADBE Vector Rect Size').setValue([camWidth, camHeight]);
+    var rectangle = shapeContents.addProperty('ADBE Vector Shape - Rect');
+    rectangle.name = 'Rectangle';
+    rectangle.property('ADBE Vector Rect Size').setValue([camWidth, camHeight]);
 
-      var stroke = shapeContents.addProperty('ADBE Vector Graphic - Stroke');
-      stroke.name = 'Stroke';
-      stroke.property('ADBE Vector Stroke Color').setValue([255,255,255]);
-      stroke.property('ADBE Vector Stroke Width').setValue(strokeWidth);
+    var stroke = shapeContents.addProperty('ADBE Vector Graphic - Stroke');
+    stroke.name = 'Stroke';
+    stroke.property('ADBE Vector Stroke Color').setValue([255,255,255]);
+    stroke.property('ADBE Vector Stroke Width').setValue(strokeWidth);
 
-      var mask = shapeLayer.Masks.addProperty('Mask');
-      mask.name = 'Mask';
-      mask.locked = true;
-      mask.property('maskShape').expression =
-        'w = content("Rectangle").size[0]/2;'+
-        'h = content("Rectangle").size[1]/2;'+
-        'createPath(points = [[-w,-h], [w,-h], [w,h], [-w,h]])';
+    var mask = shapeLayer.Masks.addProperty('Mask');
+    mask.name = 'Mask';
+    mask.locked = true;
+    mask.property('maskShape').expression =
+      'w = content("Rectangle").size[0]/2;'+
+      'h = content("Rectangle").size[1]/2;'+
+      'createPath(points = [[-w,-h], [w,-h], [w,h], [-w,h]])';
 
+    app.endUndoGroup();
+  });
+}
+
+function newOutputDialog(ok) {
+  var dialog = new Window("dialog", "New 2dCam", undefined, { resizeable: false });
+
+  var width = currentComp.width;
+  var height = currentComp.height;
+  res = 'group{ \
+    orientation:"column", \
+    nameGroup: Group{orientation:"row", \
+      nameText: StaticText{text:"Name:", justify:"right", preferredSize: [40, 20]}, \
+      name: EditText{text:"2dCam", characters:15}, \
+    }, \
+    buttonsGroup: Group{ \
+      orientation:"row", \
+      cancelButton: Button{text:"Cancel"}, \
+      okButton: Button{text:"OK"}, \
+    }, \
+  }';
+
+  dialog.grp = dialog.add(res);
+  dialog.grp.nameGroup.name.active = true;
+
+  dialog.grp.buttonsGroup.cancelButton.onClick = function() {
+    dialog.close();
+  }
+  dialog.grp.buttonsGroup.okButton.onClick = function() {
+    var name = dialog.grp.nameGroup.name.text;
+    dialog.close();
+    ok(dialog.grp.nameGroup.name.text);
+  }
+
+  dialog.layout.layout(true);
+  dialog.center();
+  dialog.show();
+}
+
+// New output
+win.grp.newOutputButton.onClick = function() {
+  if (!ScriptUI.environment.keyboardState.altKey) {
+    // new output comp
+
+    var currentComp = app.project.activeItem;
+    if (!currentComp) return alert('Please select a comp');
+    newOutputDialog(function(name) {
+      app.beginUndoGroup('New 2dCam Output Comp');
+      newOutputComp(name, currentComp);
       app.endUndoGroup();
     });
+
+  } else {
+    // apply to selected layer
+    
+    var currentComp = app.project.activeItem;
+    if (!currentComp) return alert('Please select one or more comp layers');
+    
+    var selectedLayers = currentComp.selectedLayers;
+    if (selectedLayers.length == 0) {
+      return alert('Please select one or more comp layers');
+    }
+
+    var outputLayers = [];
+    var nonCompLayersSelected, compLayersSelected;
+    for (var i = 0; i < selectedLayers.length; i++) {
+      var layer = selectedLayers[i];
+      if (layer.source && layer.source instanceof CompItem) {
+        outputLayers.push(layer);
+        compLayersSelected = true;
+      } else {
+        nonCompLayersSelected = true;
+      }
+    }
+
+    if (!compLayersSelected) {
+      return alert('Please select one or more comp layers');
+    }
+    // if (nonCompLayersSelected) {
+    //   proceed = confirm('Non-comp layers have been selected, and will be skipped. Proceed?');
+    //   if (!proceed) return;
+    // }
+
+    newOutputDialog(function(name) {
+      app.beginUndoGroup('Apply 2dCam Output');
+      for (var i = 0; i < outputLayers.length; i++) {
+        applyOutputToLayer(name, outputLayers[i]);
+      }
+      app.endUndoGroup();
+    });
+
   }
 }
 
