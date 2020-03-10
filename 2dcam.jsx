@@ -39,6 +39,27 @@ Object.prototype.addc = function(name, options) {
   return newElement;
 }
 
+function evaluateNumberField(value, lastValue, fallback){
+  try {
+    value = String(value);
+    lastValue = String(lastValue);
+    var firstChar = value.charAt(0);
+    // .5 to 0.5
+    if (firstChar == '.') value = '0'+value;
+    // /5 to lastValue/5
+    else if ('+-/*%'.indexOf(firstChar) !== -1) value = lastValue+value;
+    // remove invalid chars
+    value = value.replace(/[^0-9\.\+\-\/\*\%]/g, '');
+    num = eval(value);
+    // round to 4 decimals, with 5 rounded up
+    var roundedNum = Math.round((Number(num) + 0.000000000001) * 10000) / 10000;
+    var safeNum = Math.min(roundedNum, 30000);
+    return String(safeNum);
+  } catch(err) {
+    return String(fallback);
+  }
+}
+
 var rootGroup = win.addc('group', {
   orientation: 'row',
 });
@@ -98,6 +119,9 @@ function newCamDialog(currentComp, alt, ok) {
         var width = widthGroup.addc('edittext', {
           text: defaultWidth,
           characters: 6,
+          onDeactivate: function() {
+            this.text = evaluateNumberField(this.text, defaultWidth);
+          },
         });
       var heightGroup = panelGroup.addc('group', {
         orientation: 'row',
@@ -110,6 +134,9 @@ function newCamDialog(currentComp, alt, ok) {
         var height = heightGroup.addc('edittext', {
           text: defaultHeight,
           characters: 6,
+          onDeactivate: function() {
+            this.text = evaluateNumberField(this.text, defaultHeight);
+          },
         });
       var createOutputComp = panelGroup.addc('checkbox', {
         text: 'Create output comp',
@@ -121,24 +148,23 @@ function newCamDialog(currentComp, alt, ok) {
     });
       var cancelButton = buttonsGroup.addc('button', {
         text: 'Cancel',
+        onClick: function() {
+          dialog.close();
+        },
       });
       var okButton = buttonsGroup.addc('button', {
         text: 'OK',
+        onClick: function() {
+          var options = {
+            name: name.text,
+            width: evaluateNumberField(width.text, defaultWidth),
+            height: evaluateNumberField(height.text, defaultHeight),
+            createOutputComp: createOutputComp.value,
+          };
+          dialog.close();
+          ok(options);
+        }
       });
-
-  cancelButton.onClick = function() {
-    dialog.close();
-  }
-  okButton.onClick = function() {
-    var options = {
-      name: name.text,
-      width: width.text,
-      height: height.text,
-      createOutputComp: createOutputComp.value,
-    };
-    dialog.close();
-    ok(options);
-  }
 
   dialog.layout.layout(true);
   dialog.center();
@@ -163,6 +189,7 @@ function applyOutputToLayer(name, outputLayer) {
 }
 
 function newOutputComp(name, sourceComp) {
+  // create comp
   var outputComp = app.project.items.addComp(
     sourceComp.name+' '+name,
     192,
@@ -173,6 +200,9 @@ function newOutputComp(name, sourceComp) {
   );
   outputComp.parentFolder = sourceComp.parentFolder;
   outputComp.openInViewer();
+
+  // create layer
+
   // take outputComp width and height from
     // - active 2dCam at current time
     // - otherwise, first 2dCam at it's inPoint
@@ -190,7 +220,7 @@ newCamButton.onClick = function() {
   newCamDialog(currentComp, createOutputComp, function(options) {
     var camWidth = options.width;
     var camHeight = options.height;
-    var strokeWidth = Math.ceil(Math.min(camWidth/40, camHeight/40));
+    var strokeWidth = Math.ceil(Math.min(camWidth/20, camHeight/20));
 
     app.beginUndoGroup('New 2dCam and Output Comp');
 
@@ -255,19 +285,18 @@ function newOutputDialog(nonCompLayersSelected, ok) {
     });
       var cancelButton = buttonsGroup.addc('button', {
         text: 'Cancel',
+        onClick: function() {
+          dialog.close();
+        }
       });
       var okButton = buttonsGroup.addc('button', {
         text: 'OK',
+        onClick: function() {
+          var finalName = name.text;
+          dialog.close();
+          ok(finalName);
+        }
       });
-
-  cancelButton.onClick = function() {
-    dialog.close();
-  }
-  okButton.onClick = function() {
-    var finalName = name.text;
-    dialog.close();
-    ok(finalName);
-  }
 
   dialog.layout.layout(true);
   dialog.center();
