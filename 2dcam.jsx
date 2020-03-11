@@ -277,7 +277,7 @@ newCamButton.onClick = function() {
   newCamDialog(currentComp, alsoNewOutputComp, function(options) {
     var camWidth = options.width;
     var camHeight = options.height;
-    var strokeWidth = Math.ceil(Math.min(camWidth/20, camHeight/20));
+    var strokeWidth = Math.ceil(Math.min(camWidth/25, camHeight/25));
 
     app.beginUndoGroup('New 2dCam and Output Comp');
 
