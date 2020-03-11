@@ -159,7 +159,7 @@ function newCamDialog(currentComp, alt, ok) {
             name: name.text,
             width: evaluateNumberField(width.text, defaultWidth),
             height: evaluateNumberField(height.text, defaultHeight),
-            createOutputComp: createOutputComp.value,
+            alsoCreateOutputComp: createOutputComp.value,
           };
           dialog.close();
           ok(options);
@@ -172,42 +172,99 @@ function newCamDialog(currentComp, alt, ok) {
 }
 
 function applyOutputToLayer(name, outputLayer) {
-  var outputComp = app.project.items.addComp(
-    'applyOutputToLayer',
-    192,
-    108,
-    sourceComp.pixelAspect,
-    sourceComp.duration,
-    sourceComp.frameRate
-  );
-  outputComp.parentFolder = sourceComp.parentFolder;
-  // set outputLayer expression for
-    // - anchor point
-    // - pos
-    // - scale
-    // - rotation
+  var nameLength = name.length;
+  outputLayer.anchorPoint.expression = [
+    "var x = null;",
+    "for (var i = 1; i < source.numLayers + 1; i++) {",
+    "  var layer = source.layer(i);",
+    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "    x = layer.toWorld(layer.anchorPoint);",
+    "    break;",
+    "  }",
+    "}",
+    "x;",
+  ].join('\n');
+  outputLayer.position.expression = [
+    "var x = null;",
+    "for (var i = 1; i < source.numLayers + 1; i++) {",
+    "  var layer = source.layer(i);",
+    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "    x = layer.anchorPoint+[layer.width/2, layer.height/2];",
+    "    break;",
+    "  }",
+    "}",
+    "x;",
+  ].join('\n');
+  outputLayer.scale.expression = [
+    "var x = null;",
+    "for (var i = 1; i < source.numLayers + 1; i++) {",
+    "  var layer = source.layer(i);",
+    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "   var camSize = source.layer('"+name+"').content('Rectangle').size;",
+    "   if (camSize[0] != thisComp.width || camSize[1] != thisComp.height) {",
+    "     throw new Error('The composition width/height must be the same as the "+name+" layer')",
+    "   }",
+    "   x = thisComp.width/camSize[0]*100/source.layer('"+name+"').scale[0]*100;",
+    "  }",
+    "}",
+    "[x,x];",
+  ].join('\n');
+  outputLayer.rotation.expression = [
+    "var x = null;",
+    "for (var i = 1; i < source.numLayers + 1; i++) {",
+    "  var layer = source.layer(i);",
+    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "    x = -layer.rotation;",
+    "    break;",
+    "  }",
+    "}",
+    "x;",
+  ].join('\n');
 }
 
-function newOutputComp(name, sourceComp) {
+function get2dCamDimensions(comp, name) {
+  // get width and height from 2dCam (active 2dCam prioritized)
+  var dimensions = {width: null, height: null};
+  for (var i = 1; i < comp.layers.length+1; i++) {
+    var layer = comp.layer(i);
+    var nameMatch = layer.name.substring(0, name.length) == name;
+    if (nameMatch && layer instanceof ShapeLayer) {
+      if (!dimensions.width || !dimensions.height) {
+        dimensions.width = layer.width;
+        dimensions.height = layer.height;
+      }
+      // prioritize active layer height/width
+      if (layer.active == true) {
+        dimensions.width = layer.width;
+        dimensions.height = layer.height;
+        break;
+      }
+    }
+  }
+  return dimensions
+}
+
+function newOutputComp(name, width, height, sourceComp) {
+
+  var dimensions = get2dCamDimensions(sourceComp, name);
+  if (!dimensions.height || !dimensions.width) return null;
+
   // create comp
   var outputComp = app.project.items.addComp(
     sourceComp.name+' '+name,
-    192,
-    108,
+    dimensions.width,
+    dimensions.height,
     sourceComp.pixelAspect,
     sourceComp.duration,
-    sourceComp.frameRate
+    sourceComp.frameRate,
   );
   outputComp.parentFolder = sourceComp.parentFolder;
+
+  // create output layer
+  var outputLayer = outputComp.layers.add(sourceComp);
+  applyOutputToLayer(name, outputLayer);
   outputComp.openInViewer();
-
-  // create layer
-
-  // take outputComp width and height from
-    // - active 2dCam at current time
-    // - otherwise, first 2dCam at it's inPoint
-  // add sourceComp as layer in output comp
-  // apply output to layer
+  return outputComp;
 }
 
 // New 2dCam
@@ -216,8 +273,8 @@ newCamButton.onClick = function() {
   if (!currentComp) return alert('Please select a comp');
 
   // ask for name, width, height then apply preset.
-  var createOutputComp = ScriptUI.environment.keyboardState.altKey;
-  newCamDialog(currentComp, createOutputComp, function(options) {
+  var alsoNewOutputComp = ScriptUI.environment.keyboardState.altKey;
+  newCamDialog(currentComp, alsoNewOutputComp, function(options) {
     var camWidth = options.width;
     var camHeight = options.height;
     var strokeWidth = Math.ceil(Math.min(camWidth/20, camHeight/20));
@@ -248,12 +305,16 @@ newCamButton.onClick = function() {
       'h = content("Rectangle").size[1]/2;'+
       'createPath(points = [[-w,-h], [w,-h], [w,h], [-w,h]])';
 
+    if (options.alsoCreateOutputComp) {
+      newOutputComp(options.name, options.width, options.height, currentComp);
+    }
+
     app.endUndoGroup();
   });
 }
 
-function newOutputDialog(nonCompLayersSelected, ok) {
-  var dialog = new Window("dialog", "New 2dCam", undefined, { resizeable: false });
+function newOutputDialog(dialogTitle, nonCompLayersSelected, ok) {
+  var dialog = new Window("dialog", dialogTitle, undefined, { resizeable: false });
 
   var dialogRootGroup = dialog.addc('group', {
     orientation: 'column',
@@ -287,6 +348,7 @@ function newOutputDialog(nonCompLayersSelected, ok) {
         text: 'Cancel',
         onClick: function() {
           dialog.close();
+          ok = false;
         }
       });
       var okButton = buttonsGroup.addc('button', {
@@ -310,10 +372,13 @@ newOutputButton.onClick = function() {
 
     var currentComp = app.project.activeItem;
     if (!currentComp) return alert('Please select a comp');
-    newOutputDialog(false, function(name) {
+    newOutputDialog('New 2dCam Output', false, function(name) {
       app.beginUndoGroup('New 2dCam Output Comp');
-      newOutputComp(name, currentComp);
+      var outputComp = newOutputComp(name, null, null, currentComp);
       app.endUndoGroup();
+      if (!outputComp) {
+        alert('No 2dCam found');
+      }
     });
 
   } else {
@@ -343,7 +408,7 @@ newOutputButton.onClick = function() {
       return alert('Please select one or more comp layers');
     }
 
-    newOutputDialog(nonCompLayersSelected, function(name) {
+    newOutputDialog('Apply 2dCam Output', nonCompLayersSelected, function(name) {
       app.beginUndoGroup('Apply 2dCam Output');
       for (var i = 0; i < outputLayers.length; i++) {
         applyOutputToLayer(name, outputLayers[i]);
