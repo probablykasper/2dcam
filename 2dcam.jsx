@@ -5,29 +5,29 @@ icons = {
   camera: "\u0089PNG\r\n\x1A\n\x00\x00\x00\rIHDR\x00\x00\x00\x1A\x00\x00\x00\x1A\b\x06\x00\x00\x00\u00A9JL\u00CE\x00\x00\x01\u0082iCCPsRGB IEC61966-2.1\x00\x00(\u0091u\u0091\u00CBKBA\x14\u0087?5)\u00CA0(\u00A2E\x0B\tkea\x05Q\x04AJX !f\u00D0k\u00A37\x1F\u0081\u00DA\u00E5^#\u00A4m\u00D0V(\u0088\u00DA\u00F4Z\u00D4_P\u00DB\u00A0u\x10\x14E\x10\u00ADZ\u00B4.jSr;7\x05%\u00F2\fg\u00CE7\u00BF\u0099s\u00989\x03\u00D6HZ\u00C9\u00E8u^\u00C8dsZ8\u00E0s\u00CD\u00CD/\u00B8\u00EA_\u00B0\u00D1@;vF\u00A3\u008A\u00AE\u008E\u0087BAj\u00DA\u00E7=\x163\u00DE\u00F6\u009A\u00B5j\u009F\u00FB\u00D7\u009A\u0096\u00E3\u00BA\x02\u0096\x06\u00E11E\u00D5r\u00C2\u0093\u00C2\u00C1\u00F5\u009Cj\u00F2\u008Ep\u009B\u0092\u008A.\x0B\u009F\t{4\u00B9\u00A0\u00F0\u009D\u00A9\u00C7J\u00FCjr\u00B2\u00C4\u00DF&k\u0091\u00B0\x1F\u00AC-\u00C2\u00AEd\x15\u00C7\u00AAXIi\x19ay9\u00EELzM)\u00DF\u00C7|\u0089#\u009E\u009D\u009D\u0091\u00D8%\u00DE\u0089N\u0098\x00>\\L1\u0081\u009F!\u00FA\x19\u0091y\u0088^\x06\u00E8\u0093\x155\u00F2\u00BD\u00BF\u00F9\u00D3\u00ACJ\u00AE\"\u00B3J\x1E\u008D\x15\u0092\u00A4\u00C8\u00E1\x11uM\u00AA\u00C7%&D\u008F\u00CBH\u00937\u00FB\u00FF\u00B7\u00AFzbp\u00A0T\u00DD\u00E1\x03\u00FB\u00B3a\u00BCwC\u00FD6\x14\x0B\u0086\u00F1ud\x18\u00C5c\u00B0=\u00C1e\u00B6\u0092\u00BFz\b\u00C3\x1F\u00A2\x17*\u009A\u00FB\x00\u009C\u009Bp~U\u00D1b\u00BBp\u00B1\x05\x1D\u008FjT\u008B\u00FEJ6qk\"\x01o\u00A7\u00D0<\x0F\u00AD7\u00D0\u00B8X\u00EAYy\u009F\u0093\x07\u0088l\u00C8W]\u00C3\u00DE>\u00F4\u00C8y\u00E7\u00D2\x0FHkg\u00D8X\u00BD\u00A4\u00BC\x00\x00\x00\tpHYs\x00\x00\x0B\x13\x00\x00\x0B\x13\x01\x00\u009A\u009C\x18\x00\x00\x00\u0081IDATH\u0089\u00ED\u0094;\x12\u00C3 \f\x05\u00F52\u00E3\x1B\u0085>\u0097\u00F2\u00F9 '\u00DB4\u00A10\u00B6\x07\f1i\u00B4\u00A5\x10Z\r\x1F\u00999\u00CE_\x00\x02\u0090\x18#\x01\u00A1&J\u00C0\n,\u009D\u008D.\u00DF\u00FD\u00B1\u0096H\u00AF\u00A4\u0090Q\u00C4^@\u00DA\u0088F$e\u009D,\u00C8gz\u008B\u00E8\u00E8\u00AE\u00CD\u00CC\u0094\x13$\u00E9\x17\u00A2\u00A3\u00B8$=F\u008B\u00B7\u00E2\u00A2\x16\u00DE\u00A7+S\u009F\u00F7\u00AC\x0F;m\x04\x05 ^\x1A\u00A1{\"\u00F0\u00ECi\u00D4q\u00EE\u00E1\x03?\u009D8B\u00C4\u00BC<\u00F7\x00\x00\x00\x00IEND\u00AEB`\u0082",
 }
 
-Object.prototype.addc = function(name, options) {
+Object.prototype.addc = function(type, options) {
   options = options || {};
   var bounds = options.bounds;
   var properties = options.properties;
 
   var noArg2 = false;
   var arg2 = options.text;
-  if (name == 'dropdownlist' || name == 'listbox' || name == 'treeview') {
+  if (type == 'dropdownlist' || type == 'listbox' || type == 'treeview') {
     arg2 = options.items;
-  } else if (name == 'iconbutton' || name == 'image') {
+  } else if (type == 'iconbutton' || type == 'image') {
     arg2 = options.icon;
-  } else if (name == 'flashplayer') {
+  } else if (type == 'flashplayer') {
     arg2 = options.movieToLoad;
-  } else if (name == 'group') {
+  } else if (type == 'group') {
     noArg2 = true;
   }
 
   if (noArg2) {
-    newElement = this.add(name, bounds, properties);
-  } else if (name == 'progressbar' || name == 'scrollbar' || name == 'slider') {
-    newElement = this.add(name, bounds, options.value, options.minvalue, options.maxvalue, properties);
+    newElement = this.add(type, bounds, properties);
+  } else if (type == 'progressbar' || type == 'scrollbar' || type == 'slider') {
+    newElement = this.add(type, bounds, options.value, options.minvalue, options.maxvalue, properties);
   } else {
-    newElement = this.add(name, bounds, arg2, properties);
+    newElement = this.add(type, bounds, arg2, properties);
   }
   
   // set options
@@ -78,7 +78,7 @@ var newOutputButton = rootGroup.addc('iconbutton', {
   helpTip: 'New 2dCam output comp\nAlt+click: Apply 2dCam output to the selected layer',
 });
 
-var nameFieldWidthChars = 20;
+var prefixFieldChars = 20;
 
 function newCamDialog(currentComp, alt, ok) {
   var dialog = new Window("dialog", "New 2dCam", undefined, { resizeable: false });
@@ -89,18 +89,18 @@ function newCamDialog(currentComp, alt, ok) {
   var dialogRootGroup = dialog.addc('group', {
     orientation: 'column',
   });
-    var nameGroup = dialogRootGroup.addc('group', {
+    var prefixGroup = dialogRootGroup.addc('group', {
       orientation: 'row',
     });
-      var nameText = nameGroup.addc('statictext', {
-        text: 'Name:',
+      var prefixText = prefixGroup.addc('statictext', {
+        text: 'Prefix:',
         justify: 'right',
         // preferredSize: [40, 20],
       });
-      var name = nameGroup.addc('edittext', {
+      var prefix = prefixGroup.addc('edittext', {
         text: '2dCam',
         active: true,
-        characters: nameFieldWidthChars,
+        characters: prefixFieldChars,
       });
     var panelGroup = dialogRootGroup.addc('panel', {
       // text: 'Options',
@@ -156,7 +156,7 @@ function newCamDialog(currentComp, alt, ok) {
         text: 'OK',
         onClick: function() {
           var options = {
-            name: name.text,
+            prefix: prefix.text,
             width: evaluateNumberField(width.text, defaultWidth),
             height: evaluateNumberField(height.text, defaultHeight),
             alsoCreateOutputComp: createOutputComp.value,
@@ -171,13 +171,12 @@ function newCamDialog(currentComp, alt, ok) {
   dialog.show();
 }
 
-function applyOutputToLayer(name, outputLayer) {
-  var nameLength = name.length;
+function applyOutputToLayer(prefix, outputLayer) {
   outputLayer.anchorPoint.expression = [
     "var x = null;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
-    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
     "    x = layer.toWorld(layer.anchorPoint);",
     "    break;",
     "  }",
@@ -188,7 +187,7 @@ function applyOutputToLayer(name, outputLayer) {
     "var x = null;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
-    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
     "    x = layer.anchorPoint+[layer.width/2, layer.height/2];",
     "    break;",
     "  }",
@@ -199,12 +198,12 @@ function applyOutputToLayer(name, outputLayer) {
     "var x = null;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
-    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
-    "   var camSize = source.layer('"+name+"').content('Rectangle').size;",
+    "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
+    "   var camSize = source.layer('"+prefix+"').content('Rectangle').size;",
     "   if (camSize[0] != thisComp.width || camSize[1] != thisComp.height) {",
-    "     throw new Error('The composition width/height must be the same as the "+name+" layer')",
+    "     throw new Error('The composition width/height must be the same as the "+prefix+" layer')",
     "   }",
-    "   x = thisComp.width/camSize[0]*100/source.layer('"+name+"').scale[0]*100;",
+    "   x = thisComp.width/camSize[0]*100/source.layer('"+prefix+"').scale[0]*100;",
     "  }",
     "}",
     "[x,x];",
@@ -213,7 +212,7 @@ function applyOutputToLayer(name, outputLayer) {
     "var x = null;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
-    "  if (layer.active && layer.name.substring(0, "+name.length+") == '"+name+"') {",
+    "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
     "    x = -layer.rotation;",
     "    break;",
     "  }",
@@ -222,13 +221,13 @@ function applyOutputToLayer(name, outputLayer) {
   ].join('\n');
 }
 
-function get2dCamDimensions(comp, name) {
+function get2dCamDimensions(comp, prefix) {
   // get width and height from 2dCam (active 2dCam prioritized)
   var dimensions = {width: null, height: null};
   for (var i = 1; i < comp.layers.length+1; i++) {
     var layer = comp.layer(i);
-    var nameMatch = layer.name.substring(0, name.length) == name;
-    if (nameMatch && layer instanceof ShapeLayer) {
+    var prefixMatch = layer.name.substring(0, prefix.length) == prefix;
+    if (prefixMatch && layer instanceof ShapeLayer) {
       if (!dimensions.width || !dimensions.height) {
         dimensions.width = layer.width;
         dimensions.height = layer.height;
@@ -244,14 +243,14 @@ function get2dCamDimensions(comp, name) {
   return dimensions
 }
 
-function newOutputComp(name, width, height, sourceComp) {
+function newOutputComp(prefix, width, height, sourceComp) {
 
-  var dimensions = get2dCamDimensions(sourceComp, name);
+  var dimensions = get2dCamDimensions(sourceComp, prefix);
   if (!dimensions.height || !dimensions.width) return null;
 
   // create comp
   var outputComp = app.project.items.addComp(
-    sourceComp.name+' '+name,
+    sourceComp.name+' '+prefix,
     dimensions.width,
     dimensions.height,
     sourceComp.pixelAspect,
@@ -262,7 +261,7 @@ function newOutputComp(name, width, height, sourceComp) {
 
   // create output layer
   var outputLayer = outputComp.layers.add(sourceComp);
-  applyOutputToLayer(name, outputLayer);
+  applyOutputToLayer(prefix, outputLayer);
   outputComp.openInViewer();
   return outputComp;
 }
@@ -272,7 +271,7 @@ newCamButton.onClick = function() {
   var currentComp = app.project.activeItem;
   if (!currentComp) return alert('Please select a comp');
 
-  // ask for name, width, height then apply preset.
+  // ask for prefix, width, height then apply preset.
   var alsoNewOutputComp = ScriptUI.environment.keyboardState.altKey;
   newCamDialog(currentComp, alsoNewOutputComp, function(options) {
     var camWidth = options.width;
@@ -282,7 +281,7 @@ newCamButton.onClick = function() {
     app.beginUndoGroup('New 2dCam and Output Comp');
 
     var shapeLayer = app.project.activeItem.layers.addShape();
-    shapeLayer.name = options.name;
+    shapeLayer.name = options.prefix;
     shapeLayer.guideLayer = true;
     shapeLayer.blendingMode = BlendingMode.DIFFERENCE;
 
@@ -306,7 +305,7 @@ newCamButton.onClick = function() {
       'createPath(points = [[-w,-h], [w,-h], [w,h], [-w,h]])';
 
     if (options.alsoCreateOutputComp) {
-      newOutputComp(options.name, options.width, options.height, currentComp);
+      newOutputComp(options.prefix, options.width, options.height, currentComp);
     }
 
     app.endUndoGroup();
@@ -319,18 +318,18 @@ function newOutputDialog(dialogTitle, nonCompLayersSelected, ok) {
   var dialogRootGroup = dialog.addc('group', {
     orientation: 'column',
   });
-    var nameGroup = dialogRootGroup.addc('group', {
+    var prefixGroup = dialogRootGroup.addc('group', {
       orientation: 'row',
     });
-      var nameText = nameGroup.addc('statictext', {
-        text: 'Name:',
+      var prefixText = prefixGroup.addc('statictext', {
+        text: 'Prefix:',
         justify: 'right',
         preferredSize: [40, 20],
       });
-      var name = nameGroup.addc('edittext', {
+      var prefix = prefixGroup.addc('edittext', {
         text: '2dCam',
         active: true,
-        characters: nameFieldWidthChars,
+        characters: prefixFieldChars,
       });
     var note = dialogRootGroup.addc('statictext', {
       text: ' ',
@@ -354,9 +353,9 @@ function newOutputDialog(dialogTitle, nonCompLayersSelected, ok) {
       var okButton = buttonsGroup.addc('button', {
         text: 'OK',
         onClick: function() {
-          var finalName = name.text;
+          var finalPrefix = prefix.text;
           dialog.close();
-          ok(finalName);
+          ok(finalPrefix);
         }
       });
 
@@ -372,9 +371,9 @@ newOutputButton.onClick = function() {
 
     var currentComp = app.project.activeItem;
     if (!currentComp) return alert('Please select a comp');
-    newOutputDialog('New 2dCam Output', false, function(name) {
+    newOutputDialog('New 2dCam Output', false, function(prefix) {
       app.beginUndoGroup('New 2dCam Output Comp');
-      var outputComp = newOutputComp(name, null, null, currentComp);
+      var outputComp = newOutputComp(prefix, null, null, currentComp);
       app.endUndoGroup();
       if (!outputComp) {
         alert('No 2dCam found');
@@ -408,10 +407,10 @@ newOutputButton.onClick = function() {
       return alert('Please select one or more comp layers');
     }
 
-    newOutputDialog('Apply 2dCam Output', nonCompLayersSelected, function(name) {
+    newOutputDialog('Apply 2dCam Output', nonCompLayersSelected, function(prefix) {
       app.beginUndoGroup('Apply 2dCam Output');
       for (var i = 0; i < outputLayers.length; i++) {
-        applyOutputToLayer(name, outputLayers[i]);
+        applyOutputToLayer(prefix, outputLayers[i]);
       }
       app.endUndoGroup();
     });
