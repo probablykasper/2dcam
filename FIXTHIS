@@ -1,0 +1,1 @@
+use inpoint/outpoint instead of active because toggling visiblity off causes active to be false

@@ -282,7 +282,7 @@ newCamButton.onClick = function() {
     app.beginUndoGroup('New 2dCam and Output Comp');
 
     var shapeLayer = app.project.activeItem.layers.addShape();
-    shapeLayer.name = name;
+    shapeLayer.name = options.name;
     shapeLayer.guideLayer = true;
     shapeLayer.blendingMode = BlendingMode.DIFFERENCE;
 
