@@ -208,6 +208,7 @@ function applyOutputToLayer(prefix, outputLayer) {
     "      if (!layer.hasParent) break;",
     "      layer = layer.parent;",
     "    }",
+    "    break;",
     "  }",
     "}",
     "x;",
