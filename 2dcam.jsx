@@ -193,15 +193,19 @@ function applyOutputToLayer(prefix, outputLayer) {
     "}",
   ].join('\n');
   outputLayer.scale.expression = [
-    "var x = null;",
+    "x = value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
-    "   var camSize = source.layer('"+prefix+"').content('Rectangle').size;",
-    "   x = thisComp.width/camSize[0]*100/source.layer('"+prefix+"').scale[0]*100;",
+    "    while (true) {",
+    "      x[0] *= 100/layer.scale[0];",
+    "      x[1] *= 100/layer.scale[1];",
+    "      if (!layer.hasParent) break;",
+    "      layer = layer.parent;",
+    "    }",
     "  }",
     "}",
-    "[x,x];",
+    "x;",
   ].join('\n');
   outputLayer.rotation.expression = [
     "value;",
