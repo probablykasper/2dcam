@@ -207,7 +207,7 @@ function applyOutputToLayer(prefix, outputLayer) {
     "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
-    "  if (layer.active && layer.name.substring(0, 5) == '2dCam') {",
+    "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
     "    var vector = source.layer(i).toWorldVec([1,0,0]);",
     "    value = -radiansToDegrees(Math.atan2(vector[1],vector[0]));",
     "    break;",
