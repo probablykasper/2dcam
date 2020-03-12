@@ -173,26 +173,24 @@ function newCamDialog(currentComp, alt, ok) {
 
 function applyOutputToLayer(prefix, outputLayer) {
   outputLayer.anchorPoint.expression = [
-    "var x = null;",
+    "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
-    "    x = layer.toWorld(layer.anchorPoint);",
+    "    value = layer.toWorld(layer.anchorPoint);",
     "    break;",
     "  }",
     "}",
-    "x;",
   ].join('\n');
   outputLayer.position.expression = [
-    "var x = null;",
+    "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
-    "    x = layer.anchorPoint+[layer.width/2, layer.height/2];",
+    "    value = layer.anchorPoint+[layer.width/2, layer.height/2];",
     "    break;",
     "  }",
     "}",
-    "x;",
   ].join('\n');
   outputLayer.scale.expression = [
     "var x = null;",
@@ -200,9 +198,6 @@ function applyOutputToLayer(prefix, outputLayer) {
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
     "   var camSize = source.layer('"+prefix+"').content('Rectangle').size;",
-    "   if (camSize[0] != thisComp.width || camSize[1] != thisComp.height) {",
-    "     throw new Error('The composition width/height must be the same as the "+prefix+" layer')",
-    "   }",
     "   x = thisComp.width/camSize[0]*100/source.layer('"+prefix+"').scale[0]*100;",
     "  }",
     "}",
