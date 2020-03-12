@@ -173,23 +173,23 @@ function newCamDialog(currentComp, alt, ok) {
 
 function applyOutputToLayer(prefix, outputLayer) {
   outputLayer.anchorPoint.expression = [
-    "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
-    "    value = layer.toWorld(layer.anchorPoint);",
+    "    layer.toWorld(layer.anchorPoint);",
     "    break;",
     "  }",
+    "  value;",
     "}",
   ].join('\n');
   outputLayer.position.expression = [
-    "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
-    "    value = layer.anchorPoint+[layer.width/2, layer.height/2];",
+    "    layer.anchorPoint+[layer.width/2, layer.height/2];",
     "    break;",
     "  }",
+    "  value;",
     "}",
   ].join('\n');
   outputLayer.scale.expression = [
@@ -208,14 +208,14 @@ function applyOutputToLayer(prefix, outputLayer) {
     "x;",
   ].join('\n');
   outputLayer.rotation.expression = [
-    "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
     "    var vector = source.layer(i).toWorldVec([1,0,0]);",
-    "    value = -radiansToDegrees(Math.atan2(vector[1],vector[0]));",
+    "    -radiansToDegrees(Math.atan2(vector[1],vector[0]));",
     "    break;",
     "  }",
+    "  value;",
     "}",
   ].join('\n');
 }
