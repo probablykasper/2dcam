@@ -58,7 +58,9 @@ function evaluateNumberField(value, lastValue, fallback){
   }
 }
 
-var win = (this instanceof Panel) ? this : new Window("palette", "2dCam", undefined, { resizeable: true });
+var windowed = !(this instanceof Panel);
+var win = (!windowed) ? this : new Window("palette", "2dCam", undefined, { resizeable: true });
+if (!windowed) win.margin = [30, 0, 30, 0];
 var rootGroup = win.addc('group', {
   orientation: 'row',
 });
@@ -77,9 +79,8 @@ var newOutputButton = rootGroup.addc('iconbutton', {
   helpTip: 'New 2dCam output comp\nAlt+click: Apply 2dCam output to the selected layer',
 });
 win.onResize = function() {
-  win.orientation = 'column';
-  rootGroup.orientation = 'column';
-  rootGroup.location = [win.size[0]/2-rootGroup.size[0]/2, win.size[1]/2-rootGroup.size[1]/2];
+  if (windowed) rootGroup.location = [win.size[0]/2-rootGroup.size[0]/2, win.size[1]/2-rootGroup.size[1]/2];
+  else rootGroup.location = [win.size[0]/2-rootGroup.size[0]/2, 0];
 }
 
 var prefixFieldChars = 20;
