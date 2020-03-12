@@ -209,15 +209,15 @@ function applyOutputToLayer(prefix, outputLayer) {
     "[x,x];",
   ].join('\n');
   outputLayer.rotation.expression = [
-    "var x = null;",
+    "value;",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
-    "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
-    "    x = -layer.rotation;",
+    "  if (layer.active && layer.name.substring(0, 5) == '2dCam') {",
+    "    var vector = source.layer(i).toWorldVec([1,0,0]);",
+    "    value = -radiansToDegrees(Math.atan2(vector[1],vector[0]));",
     "    break;",
     "  }",
     "}",
-    "x;",
   ].join('\n');
 }
 
