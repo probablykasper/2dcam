@@ -200,7 +200,7 @@ function applyOutputToLayer(prefix, outputLayer) {
     "}",
   ].join('\n');
   outputLayer.scale.expression = [
-    "x = value;",
+    "x = [100,100];",
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
     "  if (layer.active && layer.name.substring(0, "+prefix.length+") == '"+prefix+"') {",
