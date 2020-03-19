@@ -234,14 +234,20 @@ function get2dCamDimensions(comp, prefix) {
     var layer = comp.layer(i);
     var prefixMatch = layer.name.substring(0, prefix.length) == prefix;
     if (prefixMatch && layer instanceof ShapeLayer) {
+      var shapeContents = layer.property('ADBE Root Vectors Group');
+      if (!shapeContents) continue;
+      var rectangle = shapeContents.property('ADBE Vector Shape - Rect');
+      if (!rectangle) continue;
+      var rectSize = rectangle.property('ADBE Vector Rect Size')
+      if (!rectSize) continue;
       if (!dimensions.width || !dimensions.height) {
-        dimensions.width = layer.width;
-        dimensions.height = layer.height;
+        dimensions.width = rectSize.value[0];
+        dimensions.height = rectSize.value[1];
       }
       // prioritize active layer height/width
       if (layer.active == true) {
-        dimensions.width = layer.width;
-        dimensions.height = layer.height;
+        dimensions.width = rectSize.value[0];
+        dimensions.height = rectSize.value[1];
         break;
       }
     }
@@ -249,10 +255,12 @@ function get2dCamDimensions(comp, prefix) {
   return dimensions
 }
 
-function newOutputComp(prefix, width, height, sourceComp) {
+function newOutputComp(prefix, dimensions, sourceComp) {
 
-  var dimensions = get2dCamDimensions(sourceComp, prefix);
-  if (!dimensions.height || !dimensions.width) return null;
+  if (dimensions == null) {
+    dimensions = get2dCamDimensions(sourceComp, prefix);
+    if (!dimensions.height || !dimensions.width) return null;
+  }
 
   // create comp
   var outputComp = app.project.items.addComp(
@@ -311,7 +319,8 @@ newCamButton.onClick = function() {
       'createPath(points = [[-w,-h], [w,-h], [w,h], [-w,h]])';
 
     if (options.alsoCreateOutputComp) {
-      newOutputComp(options.prefix, options.width, options.height, currentComp);
+      var dimensions = {width: options.width, height: options.height};
+      newOutputComp(options.prefix, dimensions, currentComp);
     }
 
     app.endUndoGroup();
@@ -379,7 +388,7 @@ newOutputButton.onClick = function() {
     if (!currentComp) return alert('Please select a comp');
     newOutputDialog('New 2dCam Output', false, function(prefix) {
       app.beginUndoGroup('New 2dCam Output Comp');
-      var outputComp = newOutputComp(prefix, null, null, currentComp);
+      var outputComp = newOutputComp(prefix, null, currentComp);
       app.endUndoGroup();
       if (!outputComp) {
         alert('No 2dCam found');
