@@ -187,6 +187,7 @@ function applyOutputToLayer(prefix, outputLayer) {
     "  value;",
     "}",
   ].join('\n');
+  outputLayer.position.dimensionsSeparated = false;
   outputLayer.position.expression = [
     "for (var i = 1; i < source.numLayers + 1; i++) {",
     "  var layer = source.layer(i);",
